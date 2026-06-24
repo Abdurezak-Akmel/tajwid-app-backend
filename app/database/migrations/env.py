@@ -14,7 +14,7 @@ from app.database.base import Base
 config = context.config
 
 # 2. OVERWRITE THE ALEMBIC.INI URL WITH YOUR SECURE PYDANTIC URL
-config.set_main_option("sqlalchemy.url", settings.database_url)
+config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
