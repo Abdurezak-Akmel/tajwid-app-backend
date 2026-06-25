@@ -1,6 +1,7 @@
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, Boolean, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import List, TYPE_CHECKING
+from datetime import datetime
 
 from app.database.base import Base
 
@@ -23,6 +24,9 @@ class User(Base):
     tg_username: Mapped[str | None] = mapped_column(String(100), unique=True, nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), nullable=False)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
 
     # Relationships
     role: Mapped["Role"] = relationship("Role", back_populates="users")

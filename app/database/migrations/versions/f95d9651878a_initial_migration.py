@@ -1,8 +1,8 @@
 """initial_migration
 
-Revision ID: 3b943505ace0
-Revises: e4bde8628fb6
-Create Date: 2026-06-24 12:14:50.612696
+Revision ID: f95d9651878a
+Revises: 
+Create Date: 2026-06-25 10:14:51.166284
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '3b943505ace0'
-down_revision: Union[str, Sequence[str], None] = 'e4bde8628fb6'
+revision: str = 'f95d9651878a'
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -33,6 +33,14 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_courses_id'), 'courses', ['id'], unique=False)
+    op.create_table('roles',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=50), nullable=False),
+    sa.Column('access_details', sa.JSON(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_roles_id'), 'roles', ['id'], unique=False)
+    op.create_index(op.f('ix_roles_name'), 'roles', ['name'], unique=True)
     op.create_table('tajwid_rules',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=255), nullable=False),
@@ -60,6 +68,22 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_role_course_id'), 'role_course', ['id'], unique=False)
+    op.create_table('users',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('full_name', sa.String(length=255), nullable=False),
+    sa.Column('email', sa.String(length=255), nullable=False),
+    sa.Column('tg_username', sa.String(length=100), nullable=True),
+    sa.Column('password_hash', sa.String(length=255), nullable=False),
+    sa.Column('role_id', sa.Integer(), nullable=False),
+    sa.Column('is_verified', sa.Boolean(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('tg_username')
+    )
+    op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
+    op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_table('access_requests',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
@@ -149,12 +173,18 @@ def downgrade() -> None:
     op.drop_table('notifications')
     op.drop_index(op.f('ix_access_requests_id'), table_name='access_requests')
     op.drop_table('access_requests')
+    op.drop_index(op.f('ix_users_id'), table_name='users')
+    op.drop_index(op.f('ix_users_email'), table_name='users')
+    op.drop_table('users')
     op.drop_index(op.f('ix_role_course_id'), table_name='role_course')
     op.drop_table('role_course')
     op.drop_index(op.f('ix_chapters_id'), table_name='chapters')
     op.drop_table('chapters')
     op.drop_index(op.f('ix_tajwid_rules_id'), table_name='tajwid_rules')
     op.drop_table('tajwid_rules')
+    op.drop_index(op.f('ix_roles_name'), table_name='roles')
+    op.drop_index(op.f('ix_roles_id'), table_name='roles')
+    op.drop_table('roles')
     op.drop_index(op.f('ix_courses_id'), table_name='courses')
     op.drop_table('courses')
     # ### end Alembic commands ###

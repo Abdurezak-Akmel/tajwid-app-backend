@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
+from datetime import datetime
 
 class UserBase(BaseModel):
     """
@@ -15,6 +16,7 @@ class UserCreate(UserBase):
     Pydantic model for creating a new user, includes password.
     """
     password: str
+    is_verified: bool = False
 
 class UserUpdate(BaseModel):
     """
@@ -26,11 +28,15 @@ class UserUpdate(BaseModel):
     tg_username: Optional[str] = None
     password: Optional[str] = None
     role_id: Optional[int] = None
+    is_verified: Optional[bool] = None
 
 class User(UserBase):
     """
     Pydantic model for user response, including the generated ID.
     """
     id: int
+    is_verified: bool
+    created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

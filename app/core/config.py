@@ -16,6 +16,15 @@ class Settings(BaseSettings):
     secret_key: str
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
+    api_base_url: str = "http://localhost:8000"
+
+    # Mail Settings
+    mail_username: str = ""
+    mail_password: str = ""
+    mail_from: str = ""
+    mail_port: int = 587
+    mail_server: str = "smtp.gmail.com"
+    mail_from_name: str = "Tejwid App"
 
     # Alternatively, you can build the full connection string dynamically
     @property
