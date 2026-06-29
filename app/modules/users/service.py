@@ -31,13 +31,13 @@ class UserService:
         user_data["password_hash"] = get_password_hash(user_data.pop("password"))
 
         # 4. Create and return the user
-        return self.repository.create(user_data)
+        return self.repository.create_user(user_data)
 
     def get_user_by_id(self, user_id: int) -> User:
         """
         Fetch a user by ID or raise an exception.
         """
-        user = self.repository.get(user_id)
+        user = self.repository.get_user_by_id(user_id)
         if not user:
             raise NotFoundError(detail="User not found")
         return user
@@ -52,7 +52,7 @@ class UserService:
         """
         List all users with pagination.
         """
-        return self.repository.get_multi(skip=skip, limit=limit)
+        return self.repository.list_users(skip=skip, limit=limit)
 
     def update_user(self, user_id: int, user_in: UserUpdate) -> User:
         """
@@ -65,18 +65,18 @@ class UserService:
         if "password" in update_data:
             update_data["password_hash"] = get_password_hash(update_data.pop("password"))
             
-        return self.repository.update(db_user, update_data)
+        return self.repository.update_user(db_user, update_data)
 
     def delete_user(self, user_id: int) -> None:
         """
         Remove a user from the system.
         """
         db_user = self.get_user_by_id(user_id)
-        self.repository.remove(user_id)
+        self.repository.delete_user(user_id)
 
     def verify_user(self, user_id: int) -> User:
         """
         Mark a user as verified.
         """
         db_user = self.get_user_by_id(user_id)
-        return self.repository.update(db_user, {"is_verified": True})
+        return self.repository.verify_user(db_user)
